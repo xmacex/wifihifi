@@ -1,5 +1,11 @@
 -- Make vibes out of Wifi
 -- connections.
+--
+-- enc 2 = manual scan
+-- enc 3 = LFO freq
+--
+-- key 2 = update
+-- key 3 = autoscan
 
 engine.name = "WifiHifi"
 
@@ -8,9 +14,11 @@ ssids = {}
 data = {}
 selected = 0
 param = 0
+scanner = nul
 
 function init()
   update()
+  scanner = metro.init(scan, 0.5)
 end
 
 function update()
@@ -85,6 +93,8 @@ function key(n, z)
   if n == 2 and z == 1 then
     update()
     -- draw_selected_bar_scan()
+  elseif n == 3 and z == 1 then
+    toggle_scanner()
   end
 
   redraw()
@@ -109,6 +119,26 @@ function enc(n, z)
 end
 
 ---------------------- fun-ctions
+function scan(tick)
+  if DEBUG then print("Scanning from " .. tick) end
+  selected = tick % #ssids + 1
+  engine.freq(sum(data[selected]) * 50)
+  engine.mod_depth(1/average(data[selected]))
+  redraw()
+end
+
+function toggle_scanner()
+  if DEBUG then print("Toggling scanner") end
+  if not scanner.is_running then
+    if DEBUG then print("Enabling scanner") end
+    scanner.props.init_stage = selected
+    scanner:start()
+  elseif scanner.is_running then
+    if DEBUG then print("Disabling scanner") end
+    scanner:stop()
+  end
+end
+
 function ssid_to_data(ssid)
   local data = #trim(ssid)
 
@@ -155,4 +185,8 @@ end
 
 function split_by_space(s)
   return string.gmatch(s, "%S+")
+end
+
+function int_to_bool(i)
+  return i ~= 0
 end
