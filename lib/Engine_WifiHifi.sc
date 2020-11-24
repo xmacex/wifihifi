@@ -7,7 +7,7 @@ Engine_WifiHifi : CroneEngine {
 
   alloc {
 	SynthDef(\wifiHifi, {
-	  |freq=220, mod_freq=0, mod_depth=0.1, mul=0.25, out=0|
+	  |freq=220, mod_freq=0, mod_depth=0.1, mul=0.1, out=0|
 	  var sig, mod;
 
 	  mod = SinOsc.ar(mod_freq, 0, mod_depth);
